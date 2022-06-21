@@ -91,6 +91,56 @@ public class UserDAO {
         return user;
     }
 
+    public static User getUserByUserId(String userId) {
+        conn = null;
+        preStm = null;
+        rs = null;
+        User user = null;
+
+        try {
+            conn = DBUtils.makeConnection();
+
+            if (conn != null) {
+                conn.setAutoCommit(false);
+
+                // Fetch user
+                String sql = "SELECT u.userId, u.fullName, u.email, u.role\n" +
+                        "FROM `User` u WHERE u.userId = ? LIMIT 1;";
+                preStm = conn.prepareStatement(sql);
+                preStm.setString(1, userId);
+                rs = preStm.executeQuery();
+
+                if (rs != null && rs.next()) {
+                    String fullName = rs.getString("u.fullName");
+                    String email = rs.getString("u.email");
+                    String role = rs.getString("u.role");
+
+                    user = new User();
+                    user.setUserId(userId);
+                    user.setFullName(fullName);
+                    user.setEmail(email);
+                    user.setRole(role);
+                }
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (Exception e) {
+            try {
+                conn.rollback();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                return null;
+            }
+            e.printStackTrace();
+            return null;
+        } finally {
+            closeConnection();
+        }
+
+        return user;
+    }
+
     public static User createUser(User user) {
         conn = null;
         preStm = null;

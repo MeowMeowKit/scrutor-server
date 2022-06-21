@@ -44,6 +44,16 @@ public class AuthAPI extends HttpServlet {
             response.setHeader("Content-Type", "application/json");
             response.addHeader("Access-Control-Allow-Origin", "*");
             response.getOutputStream().println(GSON.toJson(user));
+        } else if (action.equals("auto-login")) {
+            String json = DataUtil.readInputStream(request.getInputStream());
+            User u = GSON.fromJson(json, User.class);
+
+            User user = UserDAO.getUserByUserId(u.getUserId());
+
+            response.setStatus(200);
+            response.setHeader("Content-Type", "application/json");
+            response.addHeader("Access-Control-Allow-Origin", "*");
+            response.getOutputStream().println(GSON.toJson(user));
         }
     }
 }
