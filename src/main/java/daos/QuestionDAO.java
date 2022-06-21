@@ -205,7 +205,6 @@ public class QuestionDAO {
                             preStm.executeUpdate();
                         } catch (Exception tagException) {
                             tagException.printStackTrace();
-                            System.out.println("Duplicated tag in question");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -232,10 +231,12 @@ public class QuestionDAO {
         return q;
     }
 
-    public static boolean updateQuestion(Question q, String teacherId) {
+    public static int updateQuestion(Question q, String teacherId) {
         conn = null;
         preStm = null;
         rs = null;
+
+        int result = -1;
 
         try {
             conn = DBUtils.makeConnection();
@@ -251,7 +252,7 @@ public class QuestionDAO {
                 preStm.setInt(3, q.getDifficulty());
                 preStm.setString(4, q.getQuestionId());
                 preStm.setString(5, teacherId);
-                preStm.executeUpdate();
+                result = preStm.executeUpdate();
 
                 // Delete old options of the question
                 preStm = null;
@@ -323,11 +324,10 @@ public class QuestionDAO {
                             preStm.executeUpdate();
                         } catch (Exception tagException) {
                             tagException.printStackTrace();
-                            System.out.println("Duplicated tag in question");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        return false;
+                        return result;
                     }
                 }
             }
@@ -339,21 +339,23 @@ public class QuestionDAO {
                 conn.rollback();
             } catch (Exception e1) {
                 e1.printStackTrace();
-                return false;
+                return result;
             }
             e.printStackTrace();
-            return false;
+            return result;
         } finally {
             closeConnection();
         }
 
-        return true;
+        return result;
     }
 
-    public static boolean deleteQuestion(String questionId, String teacherId) {
+    public static int deleteQuestion(String questionId, String teacherId) {
         conn = null;
         preStm = null;
         rs = null;
+
+        int result = -1;
 
         try {
             conn = DBUtils.makeConnection();
@@ -383,7 +385,7 @@ public class QuestionDAO {
                 sql = "DELETE FROM Question WHERE questionId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, questionId);
-                preStm.executeUpdate();
+                result = preStm.executeUpdate();
             }
 
             conn.commit();
@@ -393,14 +395,14 @@ public class QuestionDAO {
                 conn.rollback();
             } catch (Exception e1) {
                 e1.printStackTrace();
-                return false;
+                return result;
             }
             e.printStackTrace();
-            return false;
+            return result;
         } finally {
             closeConnection();
         }
 
-        return true;
+        return result;
     }
 }
