@@ -28,8 +28,13 @@ public class ClassDAO {
         return false;
     }
 
-    // Delete a class
+    // A teacher delete a class
     public static boolean deleteClass() {
+        return false;
+    }
+
+    // A student leave a class
+    public static boolean leaveClass() {
         return false;
     }
 }
