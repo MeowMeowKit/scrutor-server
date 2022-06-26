@@ -17,14 +17,33 @@ import java.util.ArrayList;
 public class QuestionsAPI extends HttpServlet {
     private static final Gson GSON = new GsonBuilder().create();
 
+    private void setAccessControlHeaders(HttpServletResponse res){
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "*");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.setHeader("Access-Control-Max-Age", "86400");
+        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS");
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "*");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.setHeader("Access-Control-Max-Age", "86400");
+
+        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS");
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String userId = req.getHeader("userId");
 
         ArrayList<Question> questions = QuestionDAO.getQuestions(userId);
 
-        res.setHeader("Content-Type", "application/json");
-        res.addHeader("Access-Control-Allow-Origin", "*");
+        setAccessControlHeaders(res);
         res.getOutputStream().println(GSON.toJson(questions));
     }
 
@@ -37,8 +56,7 @@ public class QuestionsAPI extends HttpServlet {
 
         Question question = QuestionDAO.createQuestion(q, teacherId);
 
-        res.setHeader("Content-Type", "application/json");
-        res.addHeader("Access-Control-Allow-Origin", "*");
+        setAccessControlHeaders(res);
         res.getOutputStream().println(GSON.toJson(question));
     }
 
@@ -51,8 +69,7 @@ public class QuestionsAPI extends HttpServlet {
 
         int result = QuestionDAO.updateQuestion(q, teacherId);
 
-        res.setHeader("Content-Type", "application/json");
-        res.addHeader("Access-Control-Allow-Origin", "*");
+        setAccessControlHeaders(res);
         res.getOutputStream().println(GSON.toJson(result));
     }
 
@@ -63,8 +80,7 @@ public class QuestionsAPI extends HttpServlet {
 
         int result = QuestionDAO.deleteQuestion(deleteId, teacherId);
 
-        res.setHeader("Content-Type", "application/json");
-        res.addHeader("Access-Control-Allow-Origin", "*");
+        setAccessControlHeaders(res);
         res.getOutputStream().println(GSON.toJson(result));
     }
 }
