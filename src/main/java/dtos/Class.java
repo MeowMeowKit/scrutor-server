@@ -15,6 +15,13 @@ public class Class {
         this.students = students;
     }
 
+    public Class(String classId, String teacherId, String name) {
+        this.classId = classId;
+        this.teacherId = teacherId;
+        this.name = name;
+    }
+
+
     public String getClassId() {
         return classId;
     }
