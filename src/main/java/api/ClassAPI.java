@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import daos.ClassDAO;
 import daos.UserDAO;
 import dtos.Class;
-import dtos.Question;
-import dtos.User;
 import utils.DataUtil;
 
 import javax.servlet.*;
@@ -27,25 +25,25 @@ public class ClassAPI extends HttpServlet {
     // /classes/attended
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String userId = req.getHeader("userId");
-        if (UserDAO.checkRole(userId).getRole().equalsIgnoreCase("TEACHER")) {
-            ArrayList<Class> classes = ClassDAO.getClassesByTeacherId(userId);
+    if (UserDAO.checkRole(userId).getRole().equalsIgnoreCase("TEACHER")) {
+        ArrayList<Class> classes = ClassDAO.getClassesByTeacherId(userId);
 
-            String json = DataUtil.readInputStream(req.getInputStream());
-            Class c = GSON.fromJson(json, Class.class);
+        String json = DataUtil.readInputStream(req.getInputStream());
+        Class c = GSON.fromJson(json, Class.class);
 
-            res.setHeader("Content-Type", "application/json");
-            res.addHeader("Access-Control-Allow-Origin", "*");
-            res.getOutputStream().println(GSON.toJson(classes));
-        } else {
-            ArrayList<Class> classes = ClassDAO.getClassesByStudentId(userId);
+        res.setHeader("Content-Type", "application/json");
+        res.addHeader("Access-Control-Allow-Origin", "*");
+        res.getOutputStream().println(GSON.toJson(classes));
+    } else {
+        ArrayList<Class> classes = ClassDAO.getClassesByStudentId(userId);
 
-            String json= DataUtil.readInputStream(req.getInputStream());
-            Class  c = GSON.fromJson(json, Class.class);
+        String json= DataUtil.readInputStream(req.getInputStream());
+        Class  c = GSON.fromJson(json, Class.class);
 
-            res.setHeader("Content-Type", "application/json");
-            res.addHeader("Access-Control-Allow-Origin", "*");
-            res.getOutputStream().println(GSON.toJson(classes));
-        }
+        res.setHeader("Content-Type", "application/json");
+        res.addHeader("Access-Control-Allow-Origin", "*");
+        res.getOutputStream().println(GSON.toJson(classes));
+    }
     }
 
     // Teacher POST
