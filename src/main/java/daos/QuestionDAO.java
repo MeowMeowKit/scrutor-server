@@ -231,7 +231,7 @@ public class QuestionDAO {
         return q;
     }
 
-    public static int updateQuestion(Question q, String teacherId) {
+    public static int updateQuestion(String updateId, Question q, String teacherId) {
         conn = null;
         preStm = null;
         rs = null;
@@ -250,7 +250,7 @@ public class QuestionDAO {
                 preStm.setString(1, q.getContent());
                 preStm.setString(2, q.getType());
                 preStm.setInt(3, q.getDifficulty());
-                preStm.setString(4, q.getQuestionId());
+                preStm.setString(4, updateId);
                 preStm.setString(5, teacherId);
                 result = preStm.executeUpdate();
 
@@ -258,21 +258,21 @@ public class QuestionDAO {
                 preStm = null;
                 sql = "DELETE FROM `Option` WHERE questionId = ?";
                 preStm = conn.prepareStatement(sql);
-                preStm.setString(1, q.getQuestionId());
+                preStm.setString(1, updateId);
                 preStm.executeUpdate();
 
                 // Delete old tags of the question
                 preStm = null;
                 sql = "DELETE FROM Question_Tag WHERE questionId = ?";
                 preStm = conn.prepareStatement(sql);
-                preStm.setString(1, q.getQuestionId());
+                preStm.setString(1, updateId);
                 preStm.executeUpdate();
 
                 // Insert new options
                 for (Option o : q.getOptions()) {
                     try {
                         o.setOptionId(UUID.randomUUID().toString());
-                        o.setQuestionId(q.getQuestionId());
+                        o.setQuestionId(updateId);
 
                         preStm = null;
                         sql = "INSERT INTO `Option` (optionId, questionId, content, isCorrect) VALUES (?, ?, ?, ?);";
@@ -319,7 +319,7 @@ public class QuestionDAO {
                             preStm = null;
                             sql = "INSERT INTO Question_Tag (questionId, tagId) VALUES (?, ?);";
                             preStm = conn.prepareStatement(sql);
-                            preStm.setString(1, q.getQuestionId());
+                            preStm.setString(1, updateId);
                             preStm.setString(2, t.getTagId());
                             preStm.executeUpdate();
                         } catch (Exception tagException) {

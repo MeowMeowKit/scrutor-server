@@ -12,15 +12,15 @@
         <url-pattern>/auth/*</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>QuestionsAPI</servlet-name>
-        <servlet-class>api.QuestionsAPI</servlet-class>
-    </servlet>
+<!--    <servlet>-->
+<!--        <servlet-name>QuestionsAPI</servlet-name>-->
+<!--        <servlet-class>api.QuestionsAPI</servlet-class>-->
+<!--    </servlet>-->
 
-    <servlet-mapping>
-        <servlet-name>QuestionsAPI</servlet-name>
-        <url-pattern>/questions/*</url-pattern>
-    </servlet-mapping>
+<!--    <servlet-mapping>-->
+<!--        <servlet-name>QuestionsAPI</servlet-name>-->
+<!--        <url-pattern>/questions/*</url-pattern>-->
+<!--    </servlet-mapping>-->
 
     <servlet>
         <servlet-name>ClassAPI</servlet-name>

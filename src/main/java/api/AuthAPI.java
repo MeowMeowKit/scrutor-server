@@ -17,22 +17,21 @@ public class AuthAPI extends HttpServlet {
 
     private void setAccessControlHeaders(HttpServletResponse res){
         res.setHeader("Content-Type", "application/json");
-        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         res.setHeader("Access-Control-Allow-Methods", "*");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.setHeader("Access-Control-Allow-Headers", "*");
         res.setHeader("Access-Control-Max-Age", "86400");
-        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS");
+        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS, PUT, DELETE");
     }
 
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         res.setHeader("Content-Type", "application/json");
-        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         res.setHeader("Access-Control-Allow-Methods", "*");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.setHeader("Access-Control-Allow-Headers", "*");
         res.setHeader("Access-Control-Max-Age", "86400");
-
-        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS");
+        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS, PUT, DELETE");
     }
 
     @Override

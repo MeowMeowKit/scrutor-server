@@ -13,28 +13,27 @@ import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.util.ArrayList;
 
-//@WebServlet(name = "QuestionAPI", value = "/QuestionAPI")
+@WebServlet(name = "QuestionAPI", value = "/questions/*")
 public class QuestionsAPI extends HttpServlet {
     private static final Gson GSON = new GsonBuilder().create();
 
     private void setAccessControlHeaders(HttpServletResponse res){
         res.setHeader("Content-Type", "application/json");
-        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         res.setHeader("Access-Control-Allow-Methods", "*");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.setHeader("Access-Control-Allow-Headers", "*");
         res.setHeader("Access-Control-Max-Age", "86400");
-        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS");
+        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS, PUT, DELETE");
     }
 
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         res.setHeader("Content-Type", "application/json");
-        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         res.setHeader("Access-Control-Allow-Methods", "*");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.setHeader("Access-Control-Allow-Headers", "*");
         res.setHeader("Access-Control-Max-Age", "86400");
-
-        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS");
+        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS, PUT, DELETE");
     }
 
     @Override
@@ -58,19 +57,25 @@ public class QuestionsAPI extends HttpServlet {
 
         setAccessControlHeaders(res);
         res.getOutputStream().println(GSON.toJson(question));
+        return;
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String teacherId = req.getHeader("userId");
+        String updateId = req.getPathInfo().substring(1);
 
         String json = DataUtil.readInputStream(req.getInputStream());
-        Question q = GSON.fromJson(json, Question.class);
+        Question newQuestion = GSON.fromJson(json, Question.class);
 
-        int result = QuestionDAO.updateQuestion(q, teacherId);
+        int result = QuestionDAO.updateQuestion(updateId, newQuestion, teacherId);
 
         setAccessControlHeaders(res);
-        res.getOutputStream().println(GSON.toJson(result));
+        if (result > 0)
+            res.getOutputStream().println(GSON.toJson(newQuestion));
+        else
+            res.getOutputStream().println(GSON.toJson(null));
+        return;
     }
 
     @Override
@@ -82,5 +87,6 @@ public class QuestionsAPI extends HttpServlet {
 
         setAccessControlHeaders(res);
         res.getOutputStream().println(GSON.toJson(result));
+        return;
     }
 }
