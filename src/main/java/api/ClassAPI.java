@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class ClassAPI extends HttpServlet {
 
     private static final Gson GSON = new GsonBuilder().create();
+
     @Override
     // Teacher GET
     // /classes/
@@ -25,25 +26,19 @@ public class ClassAPI extends HttpServlet {
     // /classes/attended
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String userId = req.getHeader("userId");
-    if (UserDAO.checkRole(userId).getRole().equalsIgnoreCase("TEACHER")) {
-        ArrayList<Class> classes = ClassDAO.getClassesByTeacherId(userId);
+        String role = req.getHeader("role");
 
-        String json = DataUtil.readInputStream(req.getInputStream());
-        Class c = GSON.fromJson(json, Class.class);
+        ArrayList<Class> classes = new ArrayList<>();
 
+        if (role.equals("teacher")) {
+            classes = ClassDAO.getClassesByTeacherId(userId);
+        } else {
+            classes = ClassDAO.getClassesByStudentId(userId);
+
+        }
         res.setHeader("Content-Type", "application/json");
         res.addHeader("Access-Control-Allow-Origin", "*");
         res.getOutputStream().println(GSON.toJson(classes));
-    } else {
-        ArrayList<Class> classes = ClassDAO.getClassesByStudentId(userId);
-
-        String json= DataUtil.readInputStream(req.getInputStream());
-        Class  c = GSON.fromJson(json, Class.class);
-
-        res.setHeader("Content-Type", "application/json");
-        res.addHeader("Access-Control-Allow-Origin", "*");
-        res.getOutputStream().println(GSON.toJson(classes));
-    }
     }
 
     // Teacher POST
@@ -54,25 +49,23 @@ public class ClassAPI extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String userId = req.getHeader("userId");
+        String role = req.getHeader("role");
 
-        if(UserDAO.checkRole(userId).getRole().equalsIgnoreCase("TEACHER")) {
-            String json = DataUtil.readInputStream(req.getInputStream());
-            Class c = GSON.fromJson(json, Class.class);
+        String json = DataUtil.readInputStream(req.getInputStream());
+        Class c = GSON.fromJson(json, Class.class);
 
+        if (role.equals("teacher")) {
             Class classes = ClassDAO.createNewClass(c, userId);
 
             res.setHeader("Content-Type", "application/json");
             res.addHeader("Access-Control-Allow-Origin", "*");
             res.getOutputStream().println(GSON.toJson(classes));
         } else {
-            String json = DataUtil.readInputStream(req.getInputStream());
-            Class c = GSON.fromJson(json, Class.class);
-
-            boolean classes = ClassDAO.attendNewClass(c, userId);
+            int attendance = ClassDAO.attendNewClass(c, userId);
 
             res.setHeader("Content-Type", "application/json");
             res.addHeader("Access-Control-Allow-Origin", "*");
-            res.getOutputStream().println(GSON.toJson(classes));
+            res.getOutputStream().println(GSON.toJson(attendance));
         }
     }
 
@@ -85,7 +78,7 @@ public class ClassAPI extends HttpServlet {
         String json = DataUtil.readInputStream(req.getInputStream());
         Class c = GSON.fromJson(json, Class.class);
 
-        boolean result = ClassDAO.updateClass(c);
+        int result = ClassDAO.updateClass(c);
 
         resp.setHeader("Content-Type", "application/json");
         resp.addHeader("Access-Control-Allow-Origin", "*");
@@ -93,23 +86,25 @@ public class ClassAPI extends HttpServlet {
 
     }
 
-    // Teacher POST
+    // Teacher DELETE
     // /classes/:classId
 
-    // Student POST
+    // Student DELETE
     // /classes/leave/:classId
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String userId = req.getHeader("userId");
-        String classId = req.getHeader("classId");
-        if(UserDAO.checkRole(userId).getRole().equalsIgnoreCase("TEACHER")) {
-            boolean result = ClassDAO.deleteClass(userId);
+        String role = req.getHeader("role");
+        if (role.equals("teacher")) {
+            String classId = req.getPathInfo().substring("/".length());
+            int result = ClassDAO.deleteClass(classId);
 
             resp.setHeader("Content-Type", "application/json");
             resp.addHeader("Access-Control-Allow-Origin", "*");
             resp.getOutputStream().println(GSON.toJson(result));
         } else {
-            boolean result = ClassDAO.leaveClass(userId,classId);
+            String classId = req.getPathInfo().substring("/leave".length());
+            int result = ClassDAO.leaveClass(userId, classId);
 
             resp.setHeader("Content-Type", "application/json");
             resp.addHeader("Access-Control-Allow-Origin", "*");

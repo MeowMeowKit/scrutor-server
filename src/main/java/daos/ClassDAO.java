@@ -17,7 +17,6 @@ public class ClassDAO {
 
     private static void closeConnection() {
         try {
-
             if (rs != null) {
                 rs.close();
             }
@@ -140,7 +139,7 @@ public class ClassDAO {
     }
 
     // Create a new class that taught by teacher A
-    public static Class createNewClass(Class c, String teacherId) throws SQLException {
+    public static Class createNewClass(Class c, String teacherId) {
         conn = null;
         preStm = null;
         rs = null;
