@@ -181,5 +181,50 @@ public class UserDAO {
 
         return user;
     }
+    public static User checkRole(String userId) {
+        conn = null;
+        preStm = null;
+        rs = null;
+        User user = null;
+
+        try {
+            conn = DBUtils.makeConnection();
+
+            if (conn != null) {
+                conn.setAutoCommit(false);
+
+                // Fetch user
+                String sql = "SELECT u.role\n" +
+                        "FROM User u WHERE u.userId = ? ";
+                preStm = conn.prepareStatement(sql);
+                preStm.setString(1, userId);
+                rs = preStm.executeQuery();
+
+                if (rs != null && rs.next()) {
+                    String role = rs.getString("u.role");
+
+                    user = new User();
+                    user.setUserId(userId);
+                    user.setRole(role);
+                }
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (Exception e) {
+            try {
+                conn.rollback();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                return null;
+            }
+            e.printStackTrace();
+            return null;
+        } finally {
+            closeConnection();
+        }
+
+        return user;
+    }
 
 }
