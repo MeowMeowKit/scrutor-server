@@ -112,6 +112,7 @@ public class ClassAPI extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String userId = req.getHeader("userId");
         String role = req.getHeader("role");
+
         if (role.equals("teacher")) {
             String classId = req.getPathInfo().substring("/".length());
             int result = ClassDAO.deleteClass(classId);
