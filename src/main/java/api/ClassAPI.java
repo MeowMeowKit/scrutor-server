@@ -60,10 +60,10 @@ public class ClassAPI extends HttpServlet {
     }
 
     // Teacher POST
-    // /classes/create/:classId
+    // /classes/:classId
 
     // Student POST
-    // /classes/attend/:classId
+    // /classes/:classId
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String userId = req.getHeader("userId");
@@ -73,15 +73,14 @@ public class ClassAPI extends HttpServlet {
         Class c = GSON.fromJson(json, Class.class);
 
         if (role.equals("teacher")) {
-            Class classes = ClassDAO.createNewClass(c, userId);
+            Class newClass = ClassDAO.createNewClass(c, userId);
 
             setAccessControlHeaders(res);
-            res.getOutputStream().println(GSON.toJson(classes));
+            res.getOutputStream().println(GSON.toJson(newClass));
         } else {
             int attendance = ClassDAO.attendNewClass(c, userId);
 
-            res.setHeader("Content-Type", "application/json");
-            res.addHeader("Access-Control-Allow-Origin", "*");
+            setAccessControlHeaders(res);
             res.getOutputStream().println(GSON.toJson(attendance));
         }
     }
@@ -97,8 +96,7 @@ public class ClassAPI extends HttpServlet {
 
         int result = ClassDAO.updateClass(c);
 
-        res.setHeader("Content-Type", "application/json");
-        res.addHeader("Access-Control-Allow-Origin", "*");
+        setAccessControlHeaders(res);
         res.getOutputStream().println(GSON.toJson(result));
 
     }
