@@ -15,8 +15,26 @@ import java.util.ArrayList;
 
 //@WebServlet(name = "ClassAPI", value = "/ClassAPI")
 public class ClassAPI extends HttpServlet {
-
     private static final Gson GSON = new GsonBuilder().create();
+
+    private void setAccessControlHeaders(HttpServletResponse res){
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        res.setHeader("Access-Control-Allow-Methods", "*");
+        res.setHeader("Access-Control-Allow-Headers", "*");
+        res.setHeader("Access-Control-Max-Age", "86400");
+        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS, PUT, DELETE");
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        res.setHeader("Access-Control-Allow-Methods", "*");
+        res.setHeader("Access-Control-Allow-Headers", "*");
+        res.setHeader("Access-Control-Max-Age", "86400");
+        res.setHeader("Allow", "GET, HEAD, POST, TRACE, OPTIONS, PUT, DELETE");
+    }
 
     @Override
     // Teacher GET
@@ -36,8 +54,8 @@ public class ClassAPI extends HttpServlet {
             classes = ClassDAO.getClassesByStudentId(userId);
 
         }
-        res.setHeader("Content-Type", "application/json");
-        res.addHeader("Access-Control-Allow-Origin", "*");
+
+        setAccessControlHeaders(res);
         res.getOutputStream().println(GSON.toJson(classes));
     }
 
@@ -57,8 +75,7 @@ public class ClassAPI extends HttpServlet {
         if (role.equals("teacher")) {
             Class classes = ClassDAO.createNewClass(c, userId);
 
-            res.setHeader("Content-Type", "application/json");
-            res.addHeader("Access-Control-Allow-Origin", "*");
+            setAccessControlHeaders(res);
             res.getOutputStream().println(GSON.toJson(classes));
         } else {
             int attendance = ClassDAO.attendNewClass(c, userId);
@@ -72,7 +89,7 @@ public class ClassAPI extends HttpServlet {
     // Teacher PUT
     // /classes/:classId
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String teacherId = req.getHeader("userId");
 
         String json = DataUtil.readInputStream(req.getInputStream());
@@ -80,9 +97,9 @@ public class ClassAPI extends HttpServlet {
 
         int result = ClassDAO.updateClass(c);
 
-        resp.setHeader("Content-Type", "application/json");
-        resp.addHeader("Access-Control-Allow-Origin", "*");
-        resp.getOutputStream().println(GSON.toJson(result));
+        res.setHeader("Content-Type", "application/json");
+        res.addHeader("Access-Control-Allow-Origin", "*");
+        res.getOutputStream().println(GSON.toJson(result));
 
     }
 
@@ -92,23 +109,21 @@ public class ClassAPI extends HttpServlet {
     // Student DELETE
     // /classes/leave/:classId
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String userId = req.getHeader("userId");
         String role = req.getHeader("role");
         if (role.equals("teacher")) {
             String classId = req.getPathInfo().substring("/".length());
             int result = ClassDAO.deleteClass(classId);
 
-            resp.setHeader("Content-Type", "application/json");
-            resp.addHeader("Access-Control-Allow-Origin", "*");
-            resp.getOutputStream().println(GSON.toJson(result));
+            setAccessControlHeaders(res);
+            res.getOutputStream().println(GSON.toJson(result));
         } else {
             String classId = req.getPathInfo().substring("/leave".length());
             int result = ClassDAO.leaveClass(userId, classId);
 
-            resp.setHeader("Content-Type", "application/json");
-            resp.addHeader("Access-Control-Allow-Origin", "*");
-            resp.getOutputStream().println(GSON.toJson(result));
+            setAccessControlHeaders(res);
+            res.getOutputStream().println(GSON.toJson(result));
         }
     }
 }
