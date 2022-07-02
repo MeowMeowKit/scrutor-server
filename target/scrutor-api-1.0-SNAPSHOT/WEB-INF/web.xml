@@ -23,12 +23,12 @@
 <!--    </servlet-mapping>-->
 
     <servlet>
-        <servlet-name>ClassAPI</servlet-name>
+        <servlet-name>ClassesAPI</servlet-name>
         <servlet-class>api.ClassAPI</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>ClassAPI</servlet-name>
+        <servlet-name>ClassesAPI</servlet-name>
         <url-pattern>/classes/*</url-pattern>
     </servlet-mapping>
 </web-app>

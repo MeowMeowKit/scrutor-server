@@ -18,7 +18,8 @@ public class DBUtils {
         
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://scrutor.cwcluovkimqe.us-west-1.rds.amazonaws.com:3306/Scrutor", "admin", "123456789");
+//            connection = DriverManager.getConnection("jdbc:mysql://scrutor.cwcluovkimqe.us-west-1.rds.amazonaws.com:3306/Scrutor", "admin", "123456789");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Scrutor", "root", "admin");
             System.out.println("Connection to database successfully");
         } catch (Exception error) {
             error.printStackTrace();

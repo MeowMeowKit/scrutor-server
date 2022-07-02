@@ -60,14 +60,14 @@ public class UserDAO {
                 String sql = "SELECT u.userId, u.fullName, u.role\n" +
                         "FROM `User` u WHERE u.email = ? AND u.password = ? LIMIT 1;";
                 preStm = conn.prepareStatement(sql);
-                preStm.setString(1, email);
-                preStm.setString(2, password);
+                preStm.setNString(1, email);
+                preStm.setNString(2, password);
                 rs = preStm.executeQuery();
 
                 if (rs != null && rs.next()) {
-                    String userId = rs.getString("u.userId");
-                    String fullName = rs.getString("u.fullName");
-                    String role = rs.getString("u.role");
+                    String userId = rs.getNString("u.userId");
+                    String fullName = rs.getNString("u.fullName");
+                    String role = rs.getNString("u.role");
 
                     user = new User(userId, fullName, email, password, role);
                 }
@@ -107,13 +107,13 @@ public class UserDAO {
                 String sql = "SELECT u.userId, u.fullName, u.email, u.role\n" +
                         "FROM `User` u WHERE u.userId = ? LIMIT 1;";
                 preStm = conn.prepareStatement(sql);
-                preStm.setString(1, userId);
+                preStm.setNString(1, userId);
                 rs = preStm.executeQuery();
 
                 if (rs != null && rs.next()) {
-                    String fullName = rs.getString("u.fullName");
-                    String email = rs.getString("u.email");
-                    String role = rs.getString("u.role");
+                    String fullName = rs.getNString("u.fullName");
+                    String email = rs.getNString("u.email");
+                    String role = rs.getNString("u.role");
 
                     user = new User();
                     user.setUserId(userId);
@@ -156,11 +156,11 @@ public class UserDAO {
                 user.setUserId(userId);
                 String sql = "INSERT INTO `User`(userId, fullname, email, password, role) VALUES (?, ?, ?, ?, ?);";
                 preStm = conn.prepareStatement(sql);
-                preStm.setString(1, userId);
-                preStm.setString(2, user.getFullName());
-                preStm.setString(3, user.getEmail());
-                preStm.setString(4, user.getPassword());
-                preStm.setString(5, user.getRole());
+                preStm.setNString(1, userId);
+                preStm.setNString(2, user.getFullName());
+                preStm.setNString(3, user.getEmail());
+                preStm.setNString(4, user.getPassword());
+                preStm.setNString(5, user.getRole());
                 preStm.executeUpdate();
             }
 
@@ -197,11 +197,11 @@ public class UserDAO {
                 String sql = "SELECT u.role\n" +
                         "FROM User u WHERE u.userId = ? ";
                 preStm = conn.prepareStatement(sql);
-                preStm.setString(1, userId);
+                preStm.setNString(1, userId);
                 rs = preStm.executeQuery();
 
                 if (rs != null && rs.next()) {
-                    String role = rs.getString("u.role");
+                    String role = rs.getNString("u.role");
 
                     user = new User();
                     user.setUserId(userId);

@@ -124,6 +124,95 @@ public class QuestionDAO {
         return list;
     }
 
+    public static Question getQuestionByQuestionId(String questionId) {
+        conn = null;
+        preStm = null;
+        rs = null;
+
+        Question q = null;
+
+        try {
+            conn = DBUtils.makeConnection();
+
+            if (conn != null) {
+                conn.setAutoCommit(false);
+
+                // Fetch questions
+                String sql = "SELECT q.teacherId, q.content, q.type, q.difficulty\n" +
+                        "FROM Question q\n" +
+                        "WHERE q.questionId = ?\n";
+                preStm = conn.prepareStatement(sql);
+                preStm.setString(1, questionId);
+                rs = preStm.executeQuery();
+
+                if (rs != null && rs.next()) {
+                    String teacherId = rs.getString("q.teacherId");
+                    String questionContent = rs.getString("q.content");
+                    String type = rs.getString("q.type");
+                    int difficulty = rs.getInt("q.difficulty");
+
+                    q = new Question(questionId, teacherId, questionContent, type, difficulty);
+
+                    // Fetch tags
+                    sql = "SELECT t.tagId, t.name, qt.questionId\n" +
+                            "FROM Tag t\n" +
+                            "INNER JOIN Question_Tag qt\n" +
+                            "ON t.tagId = qt.tagId\n" +
+                            "WHERE qt.questionId = ?;";
+
+                    preStm = null;
+                    preStm = conn.prepareStatement(sql);
+                    preStm.setString(1, questionId);
+
+                    ResultSet rs1 = preStm.executeQuery();
+                    if (rs1 != null) {
+                        while (rs1.next()) {
+                            String tagId = rs1.getString("t.tagId");
+                            String name = rs1.getString("t.name");
+
+                            q.addTag(new Tag(tagId, name));
+                        }
+                    }
+
+                    // Fetch options
+                    sql = "SELECT o.optionId, o.content, o.isCorrect\n" +
+                            "FROM `Option` o\n" +
+                            "WHERE o.questionId = ?;";
+
+                    preStm = null;
+                    preStm = conn.prepareStatement(sql);
+                    preStm.setString(1, questionId);
+
+                    rs1 = preStm.executeQuery();
+                    if (rs1 != null) {
+                        while (rs1.next()) {
+                            String optionId = rs1.getString("o.optionId");
+                            String optionContent = rs1.getString("o.content");
+                            boolean isCorrect = rs1.getBoolean("o.isCorrect");
+
+                            q.addOption(new Option(optionId, questionId, optionContent, isCorrect));
+                        }
+                    }
+                }
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (Exception e) {
+            try {
+                conn.rollback();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                return null;
+            }
+            e.printStackTrace();
+            return null;
+        } finally {
+            closeConnection();
+        }
+        return q;
+    }
+
     public static Question createQuestion(Question q, String teacherId) {
         conn = null;
         preStm = null;

@@ -11,6 +11,7 @@ public class Question {
     private int difficulty;
     private ArrayList<Tag> tags;
     private ArrayList<Option> options;
+    private int point;
 
     public Question() {
         this.questionId = null;
@@ -20,6 +21,7 @@ public class Question {
         this.difficulty = 0;
         this.tags = new ArrayList<>();
         this.options = new ArrayList<>();
+        this.point = 0;
     }
 
     public Question(String teacherId, String content, String type, int difficulty, ArrayList<Tag> tags, ArrayList<Option> options) {
@@ -104,6 +106,14 @@ public class Question {
 
     public void setOptions(ArrayList<Option> options) {
         this.options = options;
+    }
+
+    public int getPoint() {
+        return point;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
     }
 
     public boolean addOption(Option o){

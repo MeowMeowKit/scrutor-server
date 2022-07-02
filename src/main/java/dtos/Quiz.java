@@ -1,6 +1,7 @@
 package dtos;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Quiz {
@@ -9,11 +10,23 @@ public class Quiz {
     private String teacherId;
     private String title;
     private String description;
-    private LocalDateTime startAt;
-    private LocalDateTime endAt;
-    private LocalDateTime time;
+    private Timestamp startAt;
+    private Timestamp endAt;
+    private Timestamp time;
+    private ArrayList<Question> questions = new ArrayList<>();
 
-    public Quiz(String quizId, String teacherId, String title, String description, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime time) {
+    public Quiz() {
+        this.quizId = null;
+        this.teacherId = null;
+        this.title = "";
+        this.description = "";
+        this.startAt = null;
+        this.endAt = null;
+        this.time = null;
+        this.questions = new ArrayList<>();
+    }
+
+    public Quiz(String quizId, String teacherId, String title, String description, Timestamp startAt, Timestamp endAt, Timestamp time, ArrayList<Question> questions) {
         this.quizId = quizId;
         this.teacherId = teacherId;
         this.title = title;
@@ -21,6 +34,18 @@ public class Quiz {
         this.startAt = startAt;
         this.endAt = endAt;
         this.time = time;
+        this.questions = questions;
+    }
+
+    public Quiz(String quizId, String teacherId, String title, String description, Timestamp startAt, Timestamp endAt, Timestamp time) {
+        this.quizId = quizId;
+        this.teacherId = teacherId;
+        this.title = title;
+        this.description = description;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.time = time;
+        this.questions = new ArrayList<>();
     }
 
     public String getQuizId() {
@@ -55,27 +80,40 @@ public class Quiz {
         this.description = description;
     }
 
-    public LocalDateTime getStartAt() {
+    public Timestamp getStartAt() {
         return startAt;
     }
 
-    public void setStartAt(LocalDateTime startAt) {
+    public void setStartAt(Timestamp startAt) {
         this.startAt = startAt;
     }
 
-    public LocalDateTime getEndAt() {
+    public Timestamp getEndAt() {
         return endAt;
     }
 
-    public void setEndAt(LocalDateTime endAt) {
+    public void setEndAt(Timestamp endAt) {
         this.endAt = endAt;
     }
 
-    public LocalDateTime getTime() {
+    public Timestamp getTime() {
         return time;
     }
 
-    public void setTime(LocalDateTime time) {
+    public void setTime(Timestamp time) {
         this.time = time;
+    }
+
+    public ArrayList<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(ArrayList<Question> questions) {
+        this.questions = questions;
+    }
+
+    public boolean addQuestion(Question q) {
+        this.questions.add(q);
+        return true;
     }
 }

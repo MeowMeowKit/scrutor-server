@@ -16,7 +16,7 @@ public class AuthAPI extends HttpServlet {
     private static final Gson GSON = new GsonBuilder().create();
 
     private void setAccessControlHeaders(HttpServletResponse res){
-        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Content-Type", "application/json; charset=UTF-8");
         res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         res.setHeader("Access-Control-Allow-Methods", "*");
         res.setHeader("Access-Control-Allow-Headers", "*");
@@ -26,7 +26,7 @@ public class AuthAPI extends HttpServlet {
 
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        res.setHeader("Content-Type", "application/json");
+        res.setContentType("application/json; charset=UTF-8");
         res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         res.setHeader("Access-Control-Allow-Methods", "*");
         res.setHeader("Access-Control-Allow-Headers", "*");
@@ -41,6 +41,7 @@ public class AuthAPI extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
         String action = req.getPathInfo().substring(1);
 
         if (action.equals("login")) {
@@ -50,7 +51,7 @@ public class AuthAPI extends HttpServlet {
             User user = UserDAO.getUserByEmailAndPassword(u.getEmail(), u.getPassword());
 
             setAccessControlHeaders(res);
-            res.getOutputStream().println(GSON.toJson(user));
+            res.getWriter().println(GSON.toJson(user));
             return;
         }
 
@@ -61,7 +62,7 @@ public class AuthAPI extends HttpServlet {
             User user = UserDAO.createUser(u);
 
             setAccessControlHeaders(res);
-            res.getOutputStream().println(GSON.toJson(user));
+            res.getWriter().println(GSON.toJson(user));
             return;
         }
 
@@ -72,7 +73,7 @@ public class AuthAPI extends HttpServlet {
             User user = UserDAO.getUserByUserId(u.getUserId());
 
             setAccessControlHeaders(res);
-            res.getOutputStream().println(GSON.toJson(user));
+            res.getWriter().println(GSON.toJson(user));
             return;
         }
 
