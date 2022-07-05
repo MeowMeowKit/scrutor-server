@@ -17,34 +17,11 @@ import utils.DBUtils;
 
 public class TagDAO {
 
-    private static Connection conn;
-    private static PreparedStatement preStm;
-    private static ResultSet rs;
-
-    public TagDAO() {
-    }
-
-    private static void closeConnection() {
-        try {
-
-            if (rs != null) {
-                rs.close();
-            }
-            if (preStm != null) {
-                preStm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static ArrayList<Tag> getTags() {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
+
         ArrayList<Tag> list = new ArrayList<>();
 
         try {
@@ -67,7 +44,13 @@ public class TagDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return list;
     }

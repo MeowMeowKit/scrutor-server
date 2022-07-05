@@ -39,17 +39,27 @@ public class QuizzAPI extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String role = req.getHeader("role");
+        String quizId = req.getPathInfo().substring("/".length());
 
-        if (role.equals("teacher")) {
-
-            String teacherId = req.getHeader("userId");
-
-            ArrayList<Quiz> quizzes = QuizDAO.getQuizzesByTeacherId(teacherId);
+        if (quizId.length() > 0) {
+            Quiz q = QuizDAO.getQuizzesByQuizId(quizId);
 
             setAccessControlHeaders(res);
-            res.getWriter().println(GSON.toJson(quizzes));
+            res.getWriter().println(GSON.toJson(q));
 
             return;
+        } else {
+            if (role.equals("teacher")) {
+
+                String teacherId = req.getHeader("userId");
+
+                ArrayList<Quiz> quizzes = QuizDAO.getQuizzesByTeacherId(teacherId);
+
+                setAccessControlHeaders(res);
+                res.getWriter().println(GSON.toJson(quizzes));
+
+                return;
+            }
         }
     }
 

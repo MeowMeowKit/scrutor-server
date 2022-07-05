@@ -5,37 +5,16 @@ import dtos.Option;
 import dtos.Tag;
 import utils.DBUtils;
 
+import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class QuestionDAO {
-
-    private static Connection conn;
-    private static PreparedStatement preStm;
-    private static ResultSet rs;
-
-    private static void closeConnection() {
-        try {
-
-            if (rs != null) {
-                rs.close();
-            }
-            if (preStm != null) {
-                preStm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static ArrayList<Question> getQuestions(String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
         ArrayList<Question> list = new ArrayList<>();
 
         try {
@@ -119,15 +98,21 @@ public class QuestionDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return list;
     }
 
     public static Question getQuestionByQuestionId(String questionId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
 
         Question q = null;
 
@@ -208,16 +193,21 @@ public class QuestionDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return q;
     }
 
     public static Question createQuestion(Question q, String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
-
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
         try {
             conn = DBUtils.makeConnection();
 
@@ -314,16 +304,22 @@ public class QuestionDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return q;
     }
 
     public static int updateQuestion(String updateId, Question q, String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
 
         int result = -1;
 
@@ -433,16 +429,22 @@ public class QuestionDAO {
             e.printStackTrace();
             return result;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return result;
     }
 
     public static int deleteQuestion(String questionId, String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
 
         int result = -1;
 
@@ -489,7 +491,13 @@ public class QuestionDAO {
             e.printStackTrace();
             return result;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return result;

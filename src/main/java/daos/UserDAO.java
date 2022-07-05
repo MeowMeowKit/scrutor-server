@@ -19,35 +19,11 @@ import java.util.UUID;
 
 
 public class UserDAO {
-
-    private static Connection conn = null;
-    private static PreparedStatement preStm = null;
-    private static ResultSet rs = null;
-
-    public UserDAO() {
-    }
-
-    private static void closeConnection() {
-        try {
-
-            if (rs != null) {
-                rs.close();
-            }
-            if (preStm != null) {
-                preStm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static User getUserByEmailAndPassword(String email, String password) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
+
         User user = null;
 
         try {
@@ -85,16 +61,22 @@ public class UserDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return user;
     }
 
     public static User getUserByUserId(String userId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
         User user = null;
 
         try {
@@ -135,16 +117,22 @@ public class UserDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return user;
     }
 
     public static User createUser(User user) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
 
         try {
             conn = DBUtils.makeConnection();
@@ -176,15 +164,21 @@ public class UserDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return user;
     }
     public static User checkRole(String userId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
         User user = null;
 
         try {
@@ -221,7 +215,13 @@ public class UserDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return user;

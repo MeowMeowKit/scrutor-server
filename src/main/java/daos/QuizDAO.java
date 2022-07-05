@@ -12,33 +12,10 @@ import java.util.UUID;
 
 public class QuizDAO {
 
-    private static Connection conn;
-    private static PreparedStatement preStm;
-    private static ResultSet rs;
-
-    public QuizDAO() {
-    }
-
-    private static void closeConnection() {
-        try {
-            if (rs != null) {
-                rs.close();
-            }
-            if (preStm != null) {
-                preStm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static ArrayList<Quiz> getQuizzesByTeacherId(String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
         ArrayList<Quiz> list = new ArrayList<>();
 
         try {
@@ -106,15 +83,104 @@ public class QuizDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return list;
     }
 
+    public static Quiz getQuizzesByQuizId(String quizId) {
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
+
+        Quiz result = null;
+
+        try {
+            conn = DBUtils.makeConnection();
+
+            if (conn != null) {
+                conn.setAutoCommit(false);
+
+                // Fetch questions
+                String sql = "SELECT q.teacherId, q.title, q.description, q.startAt, q.endAt, q.time\n" +
+                        "FROM Quiz q\n" +
+                        "WHERE q.quizId = ?\n";
+                preStm = conn.prepareStatement(sql);
+                preStm.setString(1, quizId);
+                rs = preStm.executeQuery();
+
+                if (rs != null) {
+                    while (rs.next()) {
+                        String teacherId = rs.getString("q.teacherId");
+                        String title = rs.getString("q.title");
+                        String description = rs.getString("q.description");
+                        Timestamp startAt = rs.getTimestamp("q.startAt");
+                        Timestamp endAt = rs.getTimestamp("q.endAt");
+                        Timestamp time = rs.getTimestamp("q.time");
+
+                        Quiz quiz = new Quiz(quizId, teacherId, title, description, startAt, endAt, time);
+
+                        try {
+                            sql = "SELECT qq.questionId, qq.point\n" +
+                                    "FROM Quiz_Question qq\n" +
+                                    "WHERE qq.quizId = ?\n";
+                            PreparedStatement preStm1 = conn.prepareStatement(sql);
+                            preStm1.setString(1, quizId);
+                            ResultSet rs1 = preStm1.executeQuery();
+
+                            if (rs1 != null) {
+                                while (rs1.next()) {
+                                    String questionId = rs1.getString("qq.questionId");
+                                    int point = rs1.getInt("qq.point");
+
+                                    Question question = QuestionDAO.getQuestionByQuestionId(questionId);
+                                    question.setPoint(point);
+                                    quiz.addQuestion(question);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+
+                        result = quiz;
+                    }
+                }
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (Exception e) {
+            try {
+                conn.rollback();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                return null;
+            }
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
     public static Quiz createQuiz(Quiz q, String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
 
         try {
             conn = DBUtils.makeConnection();
@@ -163,16 +229,22 @@ public class QuizDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return q;
     }
 
     public static Quiz updateQuiz(String updateId, Quiz q, String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
 
         try {
             conn = DBUtils.makeConnection();
@@ -226,16 +298,22 @@ public class QuizDAO {
             e.printStackTrace();
             return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return q;
     }
 
     public static int deleteQuiz(String deleteId, String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
 
         int result = 0;
 
@@ -272,7 +350,13 @@ public class QuizDAO {
             e.printStackTrace();
             return 0;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return result;
