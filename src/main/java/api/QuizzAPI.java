@@ -3,6 +3,7 @@ package api;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import daos.QuizDAO;
+import dtos.Attempt;
 import dtos.Question;
 import dtos.Quiz;
 import utils.DataUtil;
@@ -59,6 +60,15 @@ public class QuizzAPI extends HttpServlet {
                 res.getWriter().println(GSON.toJson(quizzes));
 
                 return;
+            } else if (role.equals("student")) {
+                String studentId = req.getHeader("userId");
+
+                ArrayList<Attempt> quizzes = QuizDAO.getAttemptByStudentId(studentId);
+
+                setAccessControlHeaders(res);
+                res.getWriter().println(GSON.toJson(quizzes));
+
+                return;
             }
         }
     }
@@ -71,7 +81,6 @@ public class QuizzAPI extends HttpServlet {
 
             String teacherId = req.getHeader("userId");
 
-
             String json = DataUtil.readInputStream(req.getInputStream());
             Quiz q = GSON.fromJson(json, Quiz.class);
 
@@ -80,6 +89,18 @@ public class QuizzAPI extends HttpServlet {
 
             setAccessControlHeaders(res);
             res.getWriter().println(GSON.toJson(quiz));
+
+            return;
+        } else if (role.equals("student")) {
+            String studentId = req.getHeader("userId");
+
+            String json = DataUtil.readInputStream(req.getInputStream());
+            Attempt a = GSON.fromJson(json, Attempt.class);
+
+            Attempt result = QuizDAO.attemptQuiz(a, studentId);
+
+            setAccessControlHeaders(res);
+            res.getWriter().println(GSON.toJson(result));
 
             return;
         }
