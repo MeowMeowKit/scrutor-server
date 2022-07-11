@@ -11,7 +11,7 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 
-//@WebServlet(name = "AuthAPI", value = "/AuthAPI")
+@WebServlet(name = "AuthAPI", value = "/auth/*")
 public class AuthAPI extends HttpServlet {
     private static final Gson GSON = new GsonBuilder().create();
 

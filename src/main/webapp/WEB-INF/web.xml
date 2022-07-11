@@ -4,25 +4,6 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
     <servlet>
-        <servlet-name>AuthAPI</servlet-name>
-        <servlet-class>api.AuthAPI</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AuthAPI</servlet-name>
-        <url-pattern>/auth/*</url-pattern>
-    </servlet-mapping>
-
-<!--    <servlet>-->
-<!--        <servlet-name>QuestionsAPI</servlet-name>-->
-<!--        <servlet-class>api.QuestionsAPI</servlet-class>-->
-<!--    </servlet>-->
-
-<!--    <servlet-mapping>-->
-<!--        <servlet-name>QuestionsAPI</servlet-name>-->
-<!--        <url-pattern>/questions/*</url-pattern>-->
-<!--    </servlet-mapping>-->
-
-    <servlet>
         <servlet-name>ClassesAPI</servlet-name>
         <servlet-class>api.ClassAPI</servlet-class>
     </servlet>

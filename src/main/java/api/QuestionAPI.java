@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 @WebServlet(name = "QuestionAPI", value = "/questions/*")
-public class QuestionsAPI extends HttpServlet {
+public class QuestionAPI extends HttpServlet {
     private static final Gson GSON = new GsonBuilder().create();
 
     private void setAccessControlHeaders(HttpServletResponse res){
