@@ -26,7 +26,8 @@ public class QuestionDAO {
                 // Fetch questions
                 String sql = "SELECT q.questionId, q.content, q.type, q.difficulty\n" +
                         "FROM Question q\n" +
-                        "WHERE teacherId = ?\n";
+                        "WHERE teacherId = ? AND q._status = 0\n" +
+                        "ORDER BY q._createdAt;";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, teacherId);
                 rs = preStm.executeQuery();
@@ -45,7 +46,8 @@ public class QuestionDAO {
                                 "FROM Tag t\n" +
                                 "INNER JOIN Question_Tag qt\n" +
                                 "ON t.tagId = qt.tagId\n" +
-                                "WHERE qt.questionId = ?;";
+                                "WHERE qt.questionId = ? AND qt._status = 0\n" +
+                                "ORDER BY qt._createdAt;";
 
                         preStm = null;
                         preStm = conn.prepareStatement(sql);
@@ -64,7 +66,8 @@ public class QuestionDAO {
                         // Fetch options
                         sql = "SELECT o.optionId, o.content, o.isCorrect\n" +
                                 "FROM `Option` o\n" +
-                                "WHERE o.questionId = ?;";
+                                "WHERE o.questionId = ? AND o._status = 0\n" +
+                                "ORDER BY o._createdAt;";
 
                         preStm = null;
                         preStm = conn.prepareStatement(sql);
@@ -125,7 +128,9 @@ public class QuestionDAO {
                 // Fetch questions
                 String sql = "SELECT q.teacherId, q.content, q.type, q.difficulty\n" +
                         "FROM Question q\n" +
-                        "WHERE q.questionId = ?\n";
+                        "WHERE q.questionId = ? AND q._status = 0\n" +
+                        "ORDER BY q._createdAt;";
+
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, questionId);
                 rs = preStm.executeQuery();
@@ -143,7 +148,8 @@ public class QuestionDAO {
                             "FROM Tag t\n" +
                             "INNER JOIN Question_Tag qt\n" +
                             "ON t.tagId = qt.tagId\n" +
-                            "WHERE qt.questionId = ?;";
+                            "WHERE qt.questionId = ? AND qt._status = 0\n" +
+                            "ORDER BY qt._createdAt;";
 
                     preStm = null;
                     preStm = conn.prepareStatement(sql);
@@ -162,7 +168,8 @@ public class QuestionDAO {
                     // Fetch options
                     sql = "SELECT o.optionId, o.content, o.isCorrect\n" +
                             "FROM `Option` o\n" +
-                            "WHERE o.questionId = ?;";
+                            "WHERE o.questionId = ?; AND o._status = 0\n" +
+                            "ORDER BY o._createdAt;";
 
                     preStm = null;
                     preStm = conn.prepareStatement(sql);
@@ -330,7 +337,7 @@ public class QuestionDAO {
                 conn.setAutoCommit(false);
 
                 // Update question info
-                String sql = "UPDATE Question SET content = ?, type = ?, difficulty = ? WHERE questionId = ? AND teacherId = ?;";
+                String sql = "UPDATE Question SET content = ?, type = ?, difficulty = ?, _updatedAt = CURRENT_TIMESTAMP(6) WHERE questionId = ? AND teacherId = ?;";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, q.getContent());
                 preStm.setString(2, q.getType());
@@ -341,14 +348,14 @@ public class QuestionDAO {
 
                 // Delete old options of the question
                 preStm = null;
-                sql = "DELETE FROM `Option` WHERE questionId = ?";
+                sql = "UPDATE `Option` SET _status = 1, _updatedAt = CURRENT_TIMESTAMP(6) WHERE questionId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, updateId);
                 preStm.executeUpdate();
 
                 // Delete old tags of the question
                 preStm = null;
-                sql = "DELETE FROM Question_Tag WHERE questionId = ?";
+                sql = "UPDATE Question_Tag SET _status = 1, _updatedAt = CURRENT_TIMESTAMP(6) WHERE questionId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, updateId);
                 preStm.executeUpdate();
@@ -402,7 +409,7 @@ public class QuestionDAO {
 
                         try {
                             preStm = null;
-                            sql = "INSERT INTO Question_Tag (questionId, tagId) VALUES (?, ?);";
+                            sql = "INSERT INTO Question_Tag (questionId, tagId) VALUES (?, ?) ON DUPLICATE KEY UPDATE _status = 0;";
                             preStm = conn.prepareStatement(sql);
                             preStm.setString(1, updateId);
                             preStm.setString(2, t.getTagId());
@@ -459,21 +466,21 @@ public class QuestionDAO {
 
                 // Delete options
                 preStm = null;
-                sql = "DELETE FROM `Option` WHERE questionId = ?";
+                sql = "UPDATE `Option` SET _status = 1, _updatedAt = CURRENT_TIMESTAMP(6) WHERE questionId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, questionId);
                 preStm.executeUpdate();
 
                 // Delete tags
                 preStm = null;
-                sql = "DELETE FROM Question_Tag WHERE questionId = ?";
+                sql = "UPDATE Question_Tag SET _status = 1, _updatedAt = CURRENT_TIMESTAMP(6) WHERE questionId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, questionId);
                 preStm.executeUpdate();
 
                 // Delete question
                 preStm = null;
-                sql = "DELETE FROM Question WHERE questionId = ?";
+                sql = "UPDATE Question SET _status = 1, _updatedAt = CURRENT_TIMESTAMP(6) WHERE questionId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, questionId);
                 result = preStm.executeUpdate();
