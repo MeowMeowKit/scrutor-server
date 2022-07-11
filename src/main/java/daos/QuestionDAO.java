@@ -27,7 +27,7 @@ public class QuestionDAO {
                 String sql = "SELECT q.questionId, q.content, q.type, q.difficulty\n" +
                         "FROM Question q\n" +
                         "WHERE teacherId = ? AND q._status = 0\n" +
-                        "ORDER BY q._createdAt;";
+                        "ORDER BY q._createdAt DESC;";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, teacherId);
                 rs = preStm.executeQuery();

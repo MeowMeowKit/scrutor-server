@@ -25,7 +25,7 @@ public class QuizDAO {
                 String sql = "SELECT q.quizId, q.title, q.description, q.startAt, q.endAt, q.time\n" +
                         "FROM Quiz q\n" +
                         "WHERE q.teacherId = ? AND q._status = 0\n" +
-                        "ORDER BY q._createdAt";
+                        "ORDER BY q._createdAt DESC";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, teacherId);
                 rs = preStm.executeQuery();
@@ -380,7 +380,7 @@ public class QuizDAO {
                         "FROM Attempt a JOIN Quiz q\n" +
                         "ON a.quizId = q.quizId\n" +
                         "WHERE a.studentId = ? AND a._status = 0\n" +
-                        "ORDER BY a._createdAt";
+                        "ORDER BY a._createdAt DESC";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setString(1, studentId);
                 ResultSet rs = ps.executeQuery();
