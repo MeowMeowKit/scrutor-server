@@ -3,6 +3,7 @@ package dtos;
 import java.util.ArrayList;
 
 public class AttemptQuestion {
+    private String attemptQuestionId;
     private Question question;
     private String fillAnswer;
     private ArrayList<AttemptOption> attemptOptions;
@@ -13,16 +14,26 @@ public class AttemptQuestion {
         this.attemptOptions = new ArrayList<>();
     }
 
-    public AttemptQuestion(Question question, String fillAnswer) {
+    public AttemptQuestion(String attemptQuestionId, Question question, String fillAnswer) {
+        this.attemptQuestionId = attemptQuestionId;
         this.question = question;
         this.fillAnswer = fillAnswer;
         this.attemptOptions = new ArrayList<>();
     }
 
-    public AttemptQuestion(Question question, String fillAnswer, ArrayList<AttemptOption> attemptOptions) {
+    public AttemptQuestion(String attemptQuestionId, Question question, String fillAnswer, ArrayList<AttemptOption> attemptOptions) {
+        this.attemptQuestionId = attemptQuestionId;
         this.question = question;
         this.fillAnswer = fillAnswer;
         this.attemptOptions = attemptOptions;
+    }
+
+    public String getAttemptQuestionId() {
+        return attemptQuestionId;
+    }
+
+    public void setAttemptQuestionId(String attemptQuestionId) {
+        this.attemptQuestionId = attemptQuestionId;
     }
 
     public Question getQuestion() {

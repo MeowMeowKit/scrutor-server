@@ -371,8 +371,9 @@ public class QuizDAO {
                 conn.setAutoCommit(false);
 
                 // Fetch attempts
-                String sql = "SELECT a.attemptId, a.quizId, a.grade\n" +
-                        "FROM Attempt a\n" +
+                String sql = "SELECT a.attemptId, a.quizId, a.grade, a.maxGrade, q.teacherId, q.title, q.description, q.startAt, q.endAt, q.time\n" +
+                        "FROM Attempt a JOIN Quiz q\n" +
+                        "ON a.quizId = q.quizId\n" +
                         "WHERE a.studentId = ?;";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setString(1, studentId);
@@ -383,10 +384,18 @@ public class QuizDAO {
                         String attemptId = rs.getString("a.attemptId");
                         String quizId = rs.getString("a.quizId");
                         double grade = rs.getDouble("a.grade");
-                        Attempt attempt = new Attempt(attemptId, quizId, studentId, grade);
+                        double maxGrade = rs.getDouble("a.maxGrade");
+                        String teacherQuizId = rs.getString("q.teacherId");
+                        String title = rs.getString("q.title");
+                        String description = rs.getString("q.description");
+                        Timestamp startAt = rs.getTimestamp("q.startAt");
+                        Timestamp endAt = rs.getTimestamp("q.endAt");
+                        Timestamp time = rs.getTimestamp("q.time");
+
+                        Attempt attempt = new Attempt(attemptId, studentId, new Quiz(quizId, teacherQuizId, title, description, startAt, endAt, time), grade, maxGrade);
 
                         // Fetch attempt questions
-                        String sql1 = "SELECT aq.questionId, aq.fillAnswer, q.teacherId, q.content, q.type, q.difficulty\n" +
+                        String sql1 = "SELECT aq.attemptQuestionId, aq.questionId, aq.fillAnswer, q.teacherId, q.content, q.type, q.difficulty\n" +
                                 "FROM AttemptQuestion aq JOIN Question q\n" +
                                 "ON aq.questionId = q.questionId\n" +
                                 "WHERE aq.attemptId = ?;";
@@ -396,33 +405,35 @@ public class QuizDAO {
 
                         if (rs1 != null) {
                             while (rs1.next()) {
+                                String attemptQuestionId = rs1.getString("aq.attemptQuestionId");
                                 String questionId = rs1.getString("aq.questionId");
-                                System.out.println(questionId);
+
                                 String fillAnswer = rs1.getString("aq.fillAnswer");
                                 String teacherId = rs1.getString("q.teacherId");
                                 String questionContent = rs1.getString("q.content");
                                 String type = rs1.getString("q.type");
                                 int difficulty = rs1.getInt("q.difficulty");
 
-                                AttemptQuestion attemptQuestion = new AttemptQuestion(new Question(questionId, teacherId, questionContent, type, difficulty), fillAnswer);
+                                AttemptQuestion attemptQuestion = new AttemptQuestion(attemptQuestionId, new Question(questionId, teacherId, questionContent, type, difficulty), fillAnswer);
 
                                 // Fetch attempt options
-                                String sql2 = "SELECT ao.optionId, ao.isChecked, o.content, o.isCorrect\n" +
+                                String sql2 = "SELECT ao.attemptOptionId, ao.optionId, ao.isChecked, o.content, o.isCorrect\n" +
                                         "FROM AttemptOption ao JOIN `Option` o\n" +
                                         "ON ao.optionId = o.optionId\n" +
-                                        "WHERE ao.questionId = ?;";
+                                        "WHERE ao.attemptQuestionId = ?;";
                                 PreparedStatement ps2 = conn.prepareStatement(sql2);
-                                ps2.setString(1, questionId);
+                                ps2.setString(1, attemptQuestionId);
                                 ResultSet rs2 = ps2.executeQuery();
 
                                 if (rs2 != null) {
                                     while (rs2.next()) {
+                                        String attemptOptionId = rs2.getString("ao.attemptOptionId");
                                         String optionId = rs2.getString("ao.optionId");
                                         boolean isChecked = rs2.getBoolean("ao.isChecked");
                                         String optionContent = rs2.getString("o.content");
                                         boolean isCorrect = rs2.getBoolean("o.isCorrect");
 
-                                        attemptQuestion.addAttemptOption(new AttemptOption(new Option(optionId, optionContent, isCorrect), isChecked));
+                                        attemptQuestion.addAttemptOption(new AttemptOption(attemptOptionId, new Option(optionId, optionContent, isCorrect), isChecked));
                                     }
                                 }
 
@@ -472,31 +483,38 @@ public class QuizDAO {
                 attempt.setAttemptId(UUID.randomUUID().toString());
 
                 // Insert attempt
-                String sql = "INSERT INTO Attempt (attemptId, quizId, studentId, grade) VALUES (?, ?, ?, ?)";
+                String sql = "INSERT INTO Attempt (attemptId, quizId, studentId, grade, maxGrade) VALUES (?, ?, ?, ?, ?)";
                 preStm = conn.prepareStatement(sql);
 
                 preStm.setString(1, attempt.getAttemptId());
-                preStm.setString(2, attempt.getQuizId());
+                preStm.setString(2, attempt.getQuiz().getQuizId());
                 preStm.setString(3, studentId);
                 preStm.setDouble(4, attempt.getGrade());
+                preStm.setDouble(4, attempt.getMaxGrade());
                 preStm.executeUpdate();
 
                 for (AttemptQuestion aq : attempt.getAttemptQuestions()) {
-                    String sql1 = "INSERT INTO AttemptQuestion (questionId, attemptId, fillAnswer) VALUES (?, ?, ?)";
+                    String attemptQuestionId = UUID.randomUUID().toString();
+                    aq.setAttemptQuestionId(attemptQuestionId);
+                    String sql1 = "INSERT INTO AttemptQuestion (attemptQuestionId, questionId, attemptId, fillAnswer) VALUES (?, ?, ?, ?)";
                     PreparedStatement ps1 = conn.prepareStatement(sql1);
 
-                    ps1.setString(1, aq.getQuestion().getQuestionId());
-                    ps1.setString(2, attempt.getAttemptId());
-                    ps1.setString(3, aq.getFillAnswer());
+                    ps1.setString(1, aq.getAttemptQuestionId());
+                    ps1.setString(2, aq.getQuestion().getQuestionId());
+                    ps1.setString(3, attempt.getAttemptId());
+                    ps1.setString(4, aq.getFillAnswer());
                     ps1.executeUpdate();
 
                     for (AttemptOption ao : aq.getAttemptOptions()) {
-                        String sql2 = "INSERT INTO AttemptOption (optionId, questionId, isChecked) VALUES (?, ?, ?)";
+                        String attemptOptionId = UUID.randomUUID().toString();
+                        ao.setAttemptOptionId(attemptOptionId);
+                        String sql2 = "INSERT INTO AttemptOption (attemptOptionId, optionId, attemptQuestionId, isChecked) VALUES (?, ?, ?, ?)";
                         PreparedStatement ps2 = conn.prepareStatement(sql2);
 
-                        ps2.setString(1, ao.getOption().getOptionId());
-                        ps2.setString(2, aq.getQuestion().getQuestionId());
-                        ps2.setBoolean(3, ao.getIsChecked());
+                        ps2.setString(1, ao.getAttemptOptionId());
+                        ps2.setString(2, ao.getOption().getOptionId());
+                        ps2.setString(3, attemptQuestionId);
+                        ps2.setBoolean(4, ao.getIsChecked());
                         ps2.executeUpdate();
                     }
                 }

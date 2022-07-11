@@ -4,32 +4,35 @@ import java.util.ArrayList;
 
 public class Attempt {
     private String attemptId;
-    private String userId;
-    private String quizId;
+    private String studentId;
+    private Quiz quiz;
     private double grade;
+    private double maxGrade;
     private ArrayList<AttemptQuestion> attemptQuestions;
 
     public Attempt() {
         this.attemptId = null;
-        this.userId = null;
-        this.quizId = null;
+        this.studentId = null;
+        this.quiz = null;
         this.grade = 0;
         this.attemptQuestions = new ArrayList<>();
     }
 
-    public Attempt(String attemptId, String userId, String quizId, double grade) {
+    public Attempt(String attemptId, String studentId, Quiz quiz, double grade, double maxGrade) {
         this.attemptId = attemptId;
-        this.userId = userId;
-        this.quizId = quizId;
+        this.studentId = studentId;
+        this.quiz = quiz;
         this.grade = grade;
+        this.maxGrade = maxGrade;
         this.attemptQuestions = new ArrayList<>();
     }
 
-    public Attempt(String attemptId, String userId, String quizId, double grade, ArrayList<AttemptQuestion> attemptQuestions) {
+    public Attempt(String attemptId, String studentId, Quiz quiz, double grade, double maxGrade, ArrayList<AttemptQuestion> attemptQuestions) {
         this.attemptId = attemptId;
-        this.userId = userId;
-        this.quizId = quizId;
+        this.studentId = studentId;
+        this.quiz = quiz;
         this.grade = grade;
+        this.maxGrade = maxGrade;
         this.attemptQuestions = attemptQuestions;
     }
 
@@ -41,20 +44,20 @@ public class Attempt {
         this.attemptId = attemptId;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getStudentId() {
+        return studentId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
     }
 
-    public String getQuizId() {
-        return quizId;
+    public Quiz getQuiz() {
+        return quiz;
     }
 
-    public void setQuizId(String quizId) {
-        this.quizId = quizId;
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
     }
 
     public double getGrade() {
@@ -63,6 +66,14 @@ public class Attempt {
 
     public void setGrade(double grade) {
         this.grade = grade;
+    }
+
+    public double getMaxGrade() {
+        return maxGrade;
+    }
+
+    public void setMaxGrade(double maxGrade) {
+        this.maxGrade = maxGrade;
     }
 
     public ArrayList<AttemptQuestion> getAttemptQuestions() {
