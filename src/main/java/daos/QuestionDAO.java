@@ -168,7 +168,7 @@ public class QuestionDAO {
                     // Fetch options
                     sql = "SELECT o.optionId, o.content, o.isCorrect\n" +
                             "FROM `Option` o\n" +
-                            "WHERE o.questionId = ?; AND o._status = 0\n" +
+                            "WHERE o.questionId = ? AND o._status = 0\n" +
                             "ORDER BY o._createdAt;";
 
                     preStm = null;

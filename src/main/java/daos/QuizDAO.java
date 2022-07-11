@@ -24,7 +24,8 @@ public class QuizDAO {
                 // Fetch questions
                 String sql = "SELECT q.quizId, q.title, q.description, q.startAt, q.endAt, q.time\n" +
                         "FROM Quiz q\n" +
-                        "WHERE q.teacherId = ?\n";
+                        "WHERE q.teacherId = ? AND q._status = 0\n" +
+                        "ORDER BY q._createdAt";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, teacherId);
                 rs = preStm.executeQuery();
@@ -43,7 +44,8 @@ public class QuizDAO {
                         try {
                             sql = "SELECT qq.questionId, qq.point\n" +
                                     "FROM Quiz_Question qq\n" +
-                                    "WHERE qq.quizId = ?\n";
+                                    "WHERE qq.quizId = ? AND qq._status = 0\n" +
+                                    "ORDER BY qq._createdAt";
                             PreparedStatement preStm1 = conn.prepareStatement(sql);
                             preStm1.setString(1, quizId);
                             ResultSet rs1 = preStm1.executeQuery();
@@ -107,7 +109,8 @@ public class QuizDAO {
                 // Fetch questions
                 String sql = "SELECT q.teacherId, q.title, q.description, q.startAt, q.endAt, q.time\n" +
                         "FROM Quiz q\n" +
-                        "WHERE q.quizId = ?\n";
+                        "WHERE q.quizId = ? AND q._status = 0\n" +
+                        "ORDER BY q._createdAt";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, quizId);
                 rs = preStm.executeQuery();
@@ -126,7 +129,8 @@ public class QuizDAO {
                         try {
                             sql = "SELECT qq.questionId, qq.point\n" +
                                     "FROM Quiz_Question qq\n" +
-                                    "WHERE qq.quizId = ?\n";
+                                    "WHERE qq.quizId = ? AND qq._status = 0\n" +
+                                    "ORDER BY qq._createdAt";
                             PreparedStatement preStm1 = conn.prepareStatement(sql);
                             preStm1.setString(1, quizId);
                             ResultSet rs1 = preStm1.executeQuery();
@@ -250,7 +254,7 @@ public class QuizDAO {
                 conn.setAutoCommit(false);
 
                 // Update quiz
-                String sql = "UPDATE Quiz SET title = ?, description = ?, startAt = ?, endAt = ?, time = ? WHERE quizId = ? AND teacherId = ?;";
+                String sql = "UPDATE Quiz SET title = ?, description = ?, startAt = ?, endAt = ?, time = ?, _updatedAt = CURRENT_TIMESTAMP(6) WHERE quizId = ? AND teacherId = ?;";
                 preStm = conn.prepareStatement(sql);
 
                 preStm.setString(1, q.getTitle());
@@ -265,19 +269,20 @@ public class QuizDAO {
 
                 // Delete old questions
                 preStm = null;
-                sql = "DELETE FROM Quiz_Question WHERE quizId = ?";
+                sql = "UPDATE Quiz_Question SET _status = 1, _updatedAt = CURRENT_TIMESTAMP(6) WHERE quizId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, updateId);
                 preStm.executeUpdate();
 
                 // Insert new questions
                 for (Question que : q.getQuestions()) {
-                    sql = "INSERT INTO Quiz_Question (quizId, questionId, point) VALUES(?, ?, ?);";
+                    sql = "INSERT INTO Quiz_Question (quizId, questionId, point) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE _status = 0, point = ?;";
                     preStm = conn.prepareStatement(sql);
 
                     preStm.setString(1, updateId);
                     preStm.setString(2, que.getQuestionId());
                     preStm.setInt(3, que.getPoint());
+                    preStm.setInt(4, que.getPoint());
 
                     preStm.executeUpdate();
                 }
@@ -322,14 +327,14 @@ public class QuizDAO {
 
                 // Delete old questions
                 preStm = null;
-                String sql = "DELETE FROM Quiz_Question WHERE quizId = ?";
+                String sql = "UPDATE Quiz_Question SET _status = 1, _updatedAt = CURRENT_TIMESTAMP(6) WHERE quizId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, deleteId);
                 result = preStm.executeUpdate();
 
                 // Delete quiz
                 preStm = null;
-                sql = "DELETE FROM Quiz WHERE quizId = ?";
+                sql = "UPDATE Quiz SET _status = 1, _updatedAt = CURRENT_TIMESTAMP(6) WHERE quizId = ?";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, deleteId);
                 preStm.executeUpdate();
