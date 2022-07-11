@@ -43,6 +43,17 @@ public class Question {
         this.options = new ArrayList<>();
     }
 
+    public Question(String questionId, String teacherId, String content, String type, int difficulty, int point) {
+        this.questionId = questionId;
+        this.teacherId = teacherId;
+        this.content = content;
+        this.type = type;
+        this.difficulty = difficulty;
+        this.point = point;
+        this.tags = new ArrayList<>();
+        this.options = new ArrayList<>();
+    }
+
     public Question(String content, String type, int difficulty, ArrayList<Tag> tags, ArrayList<Option> options) {
         this.content = content;
         this.type = type;
