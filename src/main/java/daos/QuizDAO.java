@@ -25,7 +25,7 @@ public class QuizDAO {
                 String sql = "SELECT q.quizId, q.title, q.description, q.startAt, q.endAt, q.time\n" +
                         "FROM Quiz q\n" +
                         "WHERE q.teacherId = ? AND q._status = 0\n" +
-                        "ORDER BY q._createdAt DESC";
+                        "ORDER BY q._createdAt;";
                 preStm = conn.prepareStatement(sql);
                 preStm.setString(1, teacherId);
                 rs = preStm.executeQuery();
@@ -380,7 +380,7 @@ public class QuizDAO {
                         "FROM Attempt a JOIN Quiz q\n" +
                         "ON a.quizId = q.quizId\n" +
                         "WHERE a.studentId = ? AND a._status = 0\n" +
-                        "ORDER BY a._createdAt DESC";
+                        "ORDER BY a._createdAt;";
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setString(1, studentId);
                 ResultSet rs = ps.executeQuery();
@@ -404,7 +404,7 @@ public class QuizDAO {
                         String sql1 = "SELECT aq.attemptQuestionId, aq.questionId, aq.fillAnswer, q.teacherId, q.content, q.type, q.difficulty, qq.point\n" +
                                 "FROM AttemptQuestion aq JOIN Question q JOIN Quiz_Question qq\n" +
                                 "ON aq.questionId = q.questionId\n AND qq.questionId = aq.questionId AND qq.quizId = ?" +
-                                "WHERE aq.attemptId = ? AND aq._status = 0\n" +
+                                "WHERE aq.attemptId = ?\n" +
                                 "ORDER BY aq._createdAt";
                         PreparedStatement ps1 = conn.prepareStatement(sql1);
                         ps1.setString(1, quizId);
@@ -429,7 +429,7 @@ public class QuizDAO {
                                 String sql2 = "SELECT ao.attemptOptionId, ao.optionId, ao.isChecked, o.content, o.isCorrect\n" +
                                         "FROM AttemptOption ao JOIN `Option` o\n" +
                                         "ON ao.optionId = o.optionId\n" +
-                                        "WHERE ao.attemptQuestionId = ? AND ao._status = 0\n" +
+                                        "WHERE ao.attemptQuestionId = ?\n" +
                                         "ORDER BY ao._createdAt";
                                 PreparedStatement ps2 = conn.prepareStatement(sql2);
                                 ps2.setString(1, attemptQuestionId);
