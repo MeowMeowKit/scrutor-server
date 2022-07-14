@@ -8,6 +8,11 @@ import static java.util.stream.Collectors.joining;
 
 public class DataUtil {
     public static String readInputStream(InputStream stream) {
-        return new BufferedReader(new InputStreamReader(stream)).lines().collect(joining("\n"));
+        try {
+            return new BufferedReader(new InputStreamReader(stream, "UTF-8")).lines().collect(joining("\n"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
