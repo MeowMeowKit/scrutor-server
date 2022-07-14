@@ -43,7 +43,7 @@ public class QuestionAPI extends HttpServlet {
         ArrayList<Question> questions = QuestionDAO.getQuestions(userId);
 
         setAccessControlHeaders(res);
-        res.getOutputStream().println(GSON.toJson(questions));
+        res.getWriter().println(GSON.toJson(questions));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class QuestionAPI extends HttpServlet {
         Question question = QuestionDAO.createQuestion(q, teacherId);
 
         setAccessControlHeaders(res);
-        res.getOutputStream().println(GSON.toJson(question));
+        res.getWriter().println(GSON.toJson(question));
         return;
     }
 
@@ -72,9 +72,9 @@ public class QuestionAPI extends HttpServlet {
 
         setAccessControlHeaders(res);
         if (result > 0)
-            res.getOutputStream().println(GSON.toJson(newQuestion));
+            res.getWriter().println(GSON.toJson(newQuestion));
         else
-            res.getOutputStream().println(GSON.toJson(null));
+            res.getWriter().println(GSON.toJson(null));
         return;
     }
 
@@ -86,7 +86,7 @@ public class QuestionAPI extends HttpServlet {
         int result = QuestionDAO.deleteQuestion(deleteId, teacherId);
 
         setAccessControlHeaders(res);
-        res.getOutputStream().println(GSON.toJson(result));
+        res.getWriter().println(GSON.toJson(result));
         return;
     }
 }

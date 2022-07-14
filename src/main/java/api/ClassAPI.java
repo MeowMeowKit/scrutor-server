@@ -56,7 +56,7 @@ public class ClassAPI extends HttpServlet {
         }
 
         setAccessControlHeaders(res);
-        res.getOutputStream().println(GSON.toJson(classes));
+        res.getWriter().println(GSON.toJson(classes));
     }
 
     // Teacher POST
@@ -76,12 +76,12 @@ public class ClassAPI extends HttpServlet {
             Class newClass = ClassDAO.createNewClass(c, userId);
 
             setAccessControlHeaders(res);
-            res.getOutputStream().println(GSON.toJson(newClass));
+            res.getWriter().println(GSON.toJson(newClass));
         } else {
             int attendance = ClassDAO.attendNewClass(c, userId);
 
             setAccessControlHeaders(res);
-            res.getOutputStream().println(GSON.toJson(attendance));
+            res.getWriter().println(GSON.toJson(attendance));
         }
     }
 
@@ -97,7 +97,7 @@ public class ClassAPI extends HttpServlet {
         int result = ClassDAO.updateClass(c);
 
         setAccessControlHeaders(res);
-        res.getOutputStream().println(GSON.toJson(result));
+        res.getWriter().println(GSON.toJson(result));
 
     }
 
@@ -116,13 +116,13 @@ public class ClassAPI extends HttpServlet {
             int result = ClassDAO.deleteClass(classId);
 
             setAccessControlHeaders(res);
-            res.getOutputStream().println(GSON.toJson(result));
+            res.getWriter().println(GSON.toJson(result));
         } else {
             String classId = req.getPathInfo().substring("/leave".length());
             int result = ClassDAO.leaveClass(userId, classId);
 
             setAccessControlHeaders(res);
-            res.getOutputStream().println(GSON.toJson(result));
+            res.getWriter().println(GSON.toJson(result));
         }
     }
 }
