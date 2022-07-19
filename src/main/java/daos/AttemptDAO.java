@@ -137,22 +137,15 @@ public class AttemptDAO {
 
             if (conn != null) {
                 conn.setAutoCommit(false);
-
-                attempt.setAttemptId(UUID.randomUUID().toString());
                 attempt.setStudentId(studentId);
 
                 // Insert attempt
-                String sql = "INSERT INTO Attempt (attemptId, quizId, studentId, grade, maxGrade) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE Attempt SET grade = ?, maxGrade = ? WHERE AttemptId = ?";
+                String sql = "UPDATE Attempt SET grade = ?, maxGrade = ? WHERE attemptId = ?;";
                 preStm = conn.prepareStatement(sql);
 
-                preStm.setString(1, attempt.getAttemptId());
-                preStm.setString(2, attempt.getQuiz().getQuizId());
-                preStm.setString(3, studentId);
-                preStm.setDouble(4, attempt.getGrade());
-                preStm.setDouble(5, attempt.getMaxGrade());
-                preStm.setDouble(6, attempt.getGrade());
-                preStm.setDouble(7, attempt.getMaxGrade());
-                preStm.setString(8, attempt.getAttemptId());
+                preStm.setDouble(1, attempt.getGrade());
+                preStm.setDouble(2, attempt.getMaxGrade());
+                preStm.setString(3, attempt.getAttemptId());
                 preStm.executeUpdate();
 
                 for (AttemptQuestion aq : attempt.getAttemptQuestions()) {
