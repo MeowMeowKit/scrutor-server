@@ -2,9 +2,11 @@ package api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import daos.QuestionDAO;
+import daos.AttemptDAO;
+import daos.QuizDAO;
+import dtos.Attempt;
 import dtos.Question;
-import dtos.User;
+import dtos.Quiz;
 import utils.DataUtil;
 
 import javax.servlet.*;
@@ -13,11 +15,11 @@ import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet(name = "QuestionAPI", value = "/questions/*")
-public class QuestionAPI extends HttpServlet {
+@WebServlet(name = "AttemptAPI", value = "/attempts/*")
+public class AttemptAPI extends HttpServlet {
     private static final Gson GSON = new GsonBuilder().create();
 
-    private void setAccessControlHeaders(HttpServletResponse res){
+    private void setAccessControlHeaders(HttpServletResponse res) {
         res.setHeader("Content-Type", "application/json; charset=UTF-8");
         res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         res.setHeader("Access-Control-Allow-Methods", "*");
@@ -38,55 +40,50 @@ public class QuestionAPI extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String userId = req.getHeader("userId");
-
-        ArrayList<Question> questions = QuestionDAO.getQuestions(userId);
-
-        setAccessControlHeaders(res);
-        res.getWriter().println(GSON.toJson(questions));
+        req.setCharacterEncoding("UTF-8");
+        String role = req.getHeader("role");
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String teacherId = req.getHeader("userId");
+        req.setCharacterEncoding("UTF-8");
+        String role = req.getHeader("role");
 
-        String json = DataUtil.readInputStream(req.getInputStream());
-        Question q = GSON.fromJson(json, Question.class);
 
-        Question question = QuestionDAO.createQuestion(q, teacherId);
+        if (role.equals("student")) {
+            String studentId = req.getHeader("userId");
 
-        setAccessControlHeaders(res);
-        res.getWriter().println(GSON.toJson(question));
-        return;
+            String path = req.getPathInfo().substring("/".length());
+            if (path.contains("start")) {
+                String json = DataUtil.readInputStream(req.getInputStream());
+                Attempt a = GSON.fromJson(json, Attempt.class);
+
+                Attempt result = AttemptDAO.startAttempt(a, studentId);
+                setAccessControlHeaders(res);
+                res.getWriter().println(GSON.toJson(result));
+                return;
+            } else if (path.contains("submit")) {
+                String json = DataUtil.readInputStream(req.getInputStream());
+                Attempt a = GSON.fromJson(json, Attempt.class);
+
+                Attempt result = AttemptDAO.submitAttempt(a, studentId);
+
+                setAccessControlHeaders(res);
+                res.getWriter().println(GSON.toJson(result));
+                return;
+            }
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String teacherId = req.getHeader("userId");
-        String updateId = req.getPathInfo().substring(1);
-
-        String json = DataUtil.readInputStream(req.getInputStream());
-        Question newQuestion = GSON.fromJson(json, Question.class);
-
-        int result = QuestionDAO.updateQuestion(updateId, newQuestion, teacherId);
-
-        setAccessControlHeaders(res);
-        if (result > 0)
-            res.getWriter().println(GSON.toJson(newQuestion));
-        else
-            res.getWriter().println(GSON.toJson(null));
-        return;
+        req.setCharacterEncoding("UTF-8");
+        String role = req.getHeader("role");
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String teacherId = req.getHeader("userId");
-        String deleteId = req.getPathInfo().substring(1);
-
-        int result = QuestionDAO.deleteQuestion(deleteId, teacherId);
-
-        setAccessControlHeaders(res);
-        res.getWriter().println(GSON.toJson(result));
-        return;
+        req.setCharacterEncoding("UTF-8");
+        String role = req.getHeader("role");
     }
 }

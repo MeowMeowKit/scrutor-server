@@ -1,309 +1,141 @@
 package daos;
 
-import java.util.ArrayList;
 import dtos.Class;
+import dtos.Question;
+import dtos.Quiz;
 import dtos.User;
+import utils.DBUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import utils.DBUtils;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class ClassDAO {
-
-    private static Connection conn = null;
-    private static PreparedStatement preStm = null;
-    private static ResultSet rs = null;
-
-    private static void closeConnection() {
-        try {
-            if (rs != null) {
-                rs.close();
-            }
-            if (preStm != null) {
-                preStm.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Get all the classes that are taught by teacher A
     public static ArrayList<Class> getClassesByTeacherId(String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
+        Connection conn = null;
         ArrayList<Class> list = new ArrayList<>();
-        ArrayList<User> listUser = new ArrayList<>();
 
         try {
             conn = DBUtils.makeConnection();
-            String sql = "SELECT u.userId, u.fullName, u.email, u.password, u.role, cl.classId, cl.name, cl.teacherId  "
-                    + "FROM (User u right join User_Class ucl on u.userId = ucl.userId) left join Class cl on ucl.classId = cl.classId "
-                    + "WHERE cl.teacherId = ? AND u.role = 'student' "
-                    + "ORDER BY cl.classId";
-            preStm = conn.prepareStatement(sql);
-            preStm.setString(1, teacherId);
-            rs = preStm.executeQuery();
-            
-            if (rs.next()) {
-                //Tạo biến chứa giá trị classId của row hiện tại
-                String classId = rs.getString("cl.classId");
-                while (rs.next()) {
-                    //Create a Student list
-                    String userId = rs.getString("u.userId");
-                    String fullName = rs.getString("u.fullName");
-                    String email = rs.getString("u.email");
-                    String password = rs.getString(" u.password");
-                    String role = rs.getString("u.role");
-                    
-                    //Phân loại lớp
-                    String newClassId = rs.getString("cl.classId");
-                    //So sánh row đang xét có trùng classId với row trên không
-                    if(newClassId != classId){
-                        classId = newClassId;
-                        list.add(new Class(rs.getString("cl.classID"), teacherId, rs.getString("cl.name"), listUser));
-                        
-                        //Add vô Student đầu tiên vô class mới
-                        listUser = null;
-                        listUser.add(new User(userId, fullName, email, password, role));
-                    }else{
-                        listUser.add(new User(userId, fullName, email, password, role));
+
+            if (conn != null) {
+                conn.setAutoCommit(false);
+
+                // Fetch questions
+                String sql = "SELECT c.classId, c.name\n" +
+                        "FROM Class c\n" +
+                        "WHERE c.teacherId = ? AND q._status = 0\n" +
+                        "ORDER BY q._createdAt;";
+                PreparedStatement preStm = conn.prepareStatement(sql);
+                preStm.setString(1, teacherId);
+                ResultSet rs = preStm.executeQuery();
+
+                if (rs != null) {
+                    while (rs.next()) {
+                        String classId = rs.getNString("c.classId");
+                        String name = rs.getNString("c.name");
+
+                        Class c = new Class(classId, teacherId, name);
+
+                        // Fetch students
+                        String sql1 = "SELECT s.userId, s.fullName, s.email, s.role\n" +
+                                "FROM `User` s JOIN Student_Class sc JOIN Class c\n" +
+                                "ON s.userId = sc.studentId AND sc.classId = c.classId\n" +
+                                "WHERE c.teacherId = ? AND sc._status = 0\n" +
+                                "ORDER BY sc._createdAt;";
+                        PreparedStatement preStm1 = conn.prepareStatement(sql1);
+                        preStm.setString(1, teacherId);
+                        ResultSet rs1 = preStm1.executeQuery();
+
+                        if (rs1 != null) {
+                            while (rs1.next()) {
+                                String studentId = rs1.getNString("s.userId");
+                                String fullName = rs1.getNString("s.fullName");
+                                String email = rs1.getNString("s.email");
+                                String role = rs1.getNString("s.role");
+
+                                User student = new User(studentId, fullName, email, role);
+
+                                c.addStudent(student);
+                            }
+                        }
+
+                        list.add(c);
                     }
                 }
             }
-            return list;
+
+            conn.commit();
+            conn.setAutoCommit(true);
         } catch (Exception e) {
+            try {
+                conn.rollback();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                return null;
+            }
             e.printStackTrace();
+            return null;
         } finally {
-            closeConnection();
-        }
-        return list;
-    }
-
-    // Get all the classes that student A attends
-    public static ArrayList<Class> getClassesByStudentId(String studentId) {
-        conn = null;
-        preStm = null;
-        rs = null;
-        ArrayList<Class> list = new ArrayList<>();
-        ArrayList<User> listUser = new ArrayList<>();
-
-        try {
-            conn = DBUtils.makeConnection();
-            String sql = "SELECT cl.classId, cl.teacheId, cl.name , u.userId, u.fullName, u.email, u.password, u.role"
-                    + "FROM ( Class cl left join User_Class ucl on cl.classId = ucl.classId ) inner join User u on ucl.userId = u.userId  "
-                    + "WHERE ucl.userId = ? AND u.role = 'student'  "
-                    + "ORDER BY cl.classId";
-            preStm = conn.prepareStatement(sql);
-            preStm.setString(1, studentId);
-            rs = preStm.executeQuery();
-    
-            if (rs.next()) {
-                //Tạo biến chứa giá trị classId của row hiện tại
-                String classId = rs.getString("cl.classId");
-                while (rs.next()) {
-                    //Create a Student list
-                    String userId = rs.getString("u.userId");
-                    String fullName = rs.getString("u.fullName");
-                    String email = rs.getString("u.email");
-                    String password = rs.getString(" u.password");
-                    String role = rs.getString("u.role");
-                  
-                    
-                     //Phân loại lớp
-                    String newClassId = rs.getString("cl.classId");
-                    //So sánh row đang xét có trùng classId với row trên không
-                    if(newClassId != classId){
-                        classId = newClassId;
-                        list.add(new Class(rs.getString("cl.classID"), rs.getString("cl.teacheId"), rs.getString("cl.name"), listUser));
-                        
-                        //Add vô Student đầu tiên vô class mới
-                        listUser = null;
-                        listUser.add(new User(userId, fullName, email, password, role));
-                    }else{
-                        listUser.add(new User(userId, fullName, email, password, role));
-                    }  
+            try {
+                if (conn != null) {
+                    conn.close();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            return list;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection();
         }
         return list;
     }
 
-    // Create a new class that taught by teacher A
-    public static Class createNewClass(Class c, String teacherId) {
-        conn = null;
-        preStm = null;
-        rs = null;
-        Class classResult = null;
-        ArrayList<User> listUser = new ArrayList<>();
-        try {
-            //Create a Class
-            conn = DBUtils.makeConnection();
-            String sql = "INSERT INTO Class "
-                    + "VAVLUES( ?, ?, ?)";
-            preStm = conn.prepareStatement(sql);
-            preStm.setString(1, c.getClassId());
-            preStm.setString(2, teacherId);
-            preStm.setString(3, c.getName());
-            rs = preStm.executeQuery();
+    public static Class createQuiz(Class c, String teacherId) {
+        Connection conn = null;
+        PreparedStatement preStm = null;
+        ResultSet rs = null;
 
-            //Insert The Student into class
-            preStm = null;
-            rs = null;
-            for (User user : c.getStudents()) {
-                sql = "INSERT INTO USER_CLASS "
-                        + "VALUES(? , ?)";
+        try {
+            conn = DBUtils.makeConnection();
+
+            if (conn != null) {
+                conn.setAutoCommit(false);
+
+                c.setClassId(UUID.randomUUID().toString());
+                c.setTeacherId(teacherId);
+
+                // Insert quiz
+                String sql = "INSERT INTO Class (classId, teacherId, name) VALUES(?, ?, ?);";
                 preStm = conn.prepareStatement(sql);
-                preStm.setString(1, user.getUserId());
-                preStm.setString(2, c.getClassId());
-                listUser.add(new User(user.getUserId(), user.getFullName(), user.getEmail(), user.getPassword(), user.getRole()));
+
+                preStm.setString(1, c.getClassId());
+                preStm.setString(2, c.getTeacherId());
+                preStm.setString(3, c.getName());
+                preStm.executeUpdate();
             }
-            classResult = new Class(c.getClassId(), teacherId, c.getName(), listUser);
-            return classResult;
+
+            conn.commit();
+            conn.setAutoCommit(true);
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection();
-        }
-        return classResult;
-    }
-
-    // A student attends a new class
-    public static int attendNewClass(Class c, String studentId) {
-        conn = null;
-        preStm = null;
-        rs = null;
-        int result = 0;// Nếu Hàm trả về 0 thì sẽ không có dòng nào ảnh hưởng
-        try {
-            conn = DBUtils.makeConnection();
-            String sql = "INSERT INTO User_Class "
-                    + "Values( ?, ?)";
-            preStm = conn.prepareStatement(sql);
-            preStm.setString(1, studentId);
-            preStm.setString(2, c.getClassId());
-
-            rs = preStm.executeQuery();
-            result = preStm.executeUpdate();
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection();
-        }
-        return result;
-    }
-
-    // Update class (edit className; edit student list add, remove student from class)
-    public static int updateClass(Class c) {
-        conn = null;
-        preStm = null;
-        rs = null;
-        String sql = null;
-        int result = 0;// Nếu Hàm trả về 0 thì sẽ không có dòng nào ảnh hưởng
-        try {
-
-            //Update the NAME of Class
-            sql = "UPDATE Class "
-                    + "SET name = ? "
-                    + "WHERE classId = ?";
-            preStm = conn.prepareStatement(sql);
-            preStm.setString(1, c.getName());
-            preStm.setString(2, c.getClassId());
-            rs = preStm.executeQuery();
-
-            //Delete old menbers in a Class
-            preStm = null;
-            rs = null;
-            sql = "DELETE FROM User_Class "
-                    + "Where classId = ? ";
-            preStm = conn.prepareStatement(sql);
-            preStm.setString(1, c.getClassId());
-            rs = preStm.executeQuery();
-
-            //INSERT NEW data in CLASS
-            preStm = null;
-            rs = null;
-            for (User user : c.getStudents()) {
-                sql = "INSERT INTO User_Class "
-                        + "Values( ?, ?) ";
-                preStm = conn.prepareStatement(sql);
-                preStm.setString(1, user.getUserId());
-                preStm.setString(2, c.getClassId());
-                rs = preStm.executeQuery();
-                result = preStm.executeUpdate();
+            try {
+                conn.rollback();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                return null;
             }
-            return result;
-        } catch (Exception e) {
             e.printStackTrace();
+            return null;
         } finally {
-            closeConnection();
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        return result;
-    }
 
-    // A teacher delete a class
-    public static int deleteClass(String classId) {
-        conn = null;
-        preStm = null;
-        rs = null;
-        int result = 0; // Nếu Hàm trả về 0 thì sẽ không có dòng nào ảnh hưởng
-        String sql = null;
-        try {
-            conn = DBUtils.makeConnection();
-            //Delete All Student in Clas
-            sql = "DELETE FROM User_Class "
-                    + "WHERE classId = ? ";
-            preStm = conn.prepareStatement(sql);
-            preStm.setString(1, classId);
-            rs = preStm.executeQuery();
-
-            //Delete Class
-            preStm = null;
-            sql = "DELETE FROM Class "
-                    + "WHERE classId = ? ";
-            preStm.setString(1, classId);
-            rs = preStm.executeQuery();
-            result = preStm.executeUpdate();
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection();
-        }
-        return result;
-    }
-
-    // A student leave a class
-    public static int leaveClass(String userId, String classId) {
-        conn = null;
-        preStm = null;
-        rs = null;
-        int result = 0; // Nếu Hàm trả về 0 thì sẽ không có dòng nào ảnh hưởng
-        try {
-            conn = DBUtils.makeConnection();
-            String sql = "DELETE FROM User_Class "
-                    + "WHERE userId = ? AND classId = ?";
-            preStm = conn.prepareStatement(sql);
-            preStm.setString(1, userId);
-            preStm.setString(2, classId);
-
-            rs = preStm.executeQuery();
-            result = preStm.executeUpdate();
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection();
-        }
-        return result;
+        return c;
     }
 }

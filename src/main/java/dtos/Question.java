@@ -128,12 +128,10 @@ public class Question {
     }
 
     public boolean addOption(Option o){
-        this.options.add(o);
-        return true;
+        return this.options.add(o);
     }
 
     public boolean addTag(Tag t){
-        this.tags.add(t);
-        return true;
+        return this.tags.add(t);
     }
 }

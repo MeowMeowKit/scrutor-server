@@ -113,7 +113,6 @@ public class Quiz {
     }
 
     public boolean addQuestion(Question q) {
-        this.questions.add(q);
-        return true;
+        return this.questions.add(q);
     }
 }

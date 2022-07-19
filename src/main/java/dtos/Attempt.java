@@ -1,5 +1,6 @@
 package dtos;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class Attempt {
@@ -8,6 +9,8 @@ public class Attempt {
     private Quiz quiz;
     private double grade;
     private double maxGrade;
+    private Timestamp startAt;
+    private Timestamp endAt;
     private ArrayList<AttemptQuestion> attemptQuestions;
 
     public Attempt() {
@@ -18,7 +21,7 @@ public class Attempt {
         this.attemptQuestions = new ArrayList<>();
     }
 
-    public Attempt(String attemptId, String studentId, Quiz quiz, double grade, double maxGrade) {
+    public Attempt(String attemptId, String studentId, Quiz quiz, double grade, double maxGrade, Timestamp startAt, Timestamp endAt) {
         this.attemptId = attemptId;
         this.studentId = studentId;
         this.quiz = quiz;
@@ -74,6 +77,22 @@ public class Attempt {
 
     public void setMaxGrade(double maxGrade) {
         this.maxGrade = maxGrade;
+    }
+
+    public Timestamp getStartAt() {
+        return startAt;
+    }
+
+    public void setStartAt(Timestamp startAt) {
+        this.startAt = startAt;
+    }
+
+    public Timestamp getEndAt() {
+        return endAt;
+    }
+
+    public void setEndAt(Timestamp endAt) {
+        this.endAt = endAt;
     }
 
     public ArrayList<AttemptQuestion> getAttemptQuestions() {

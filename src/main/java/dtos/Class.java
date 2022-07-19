@@ -8,6 +8,13 @@ public class Class {
     private String name;
     private ArrayList<User> students;
 
+    public Class() {
+        this.classId = null;
+        this.teacherId = null;
+        this.name = null;
+        this.students = new ArrayList<>();
+    }
+
     public Class(String classId, String teacherId, String name, ArrayList<User> students) {
         this.classId = classId;
         this.teacherId = teacherId;
@@ -52,5 +59,9 @@ public class Class {
 
     public void setStudents(ArrayList<User> students) {
         this.students = students;
+    }
+
+    public boolean addStudent (User student) {
+        return this.students.add(student);
     }
 }
