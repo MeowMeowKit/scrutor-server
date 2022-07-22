@@ -6,6 +6,7 @@ public class Class {
     private String classId;
     private String teacherId;
     private String name;
+    private String teacherName;
     private ArrayList<User> students;
 
     public Class() {
@@ -26,6 +27,15 @@ public class Class {
         this.classId = classId;
         this.teacherId = teacherId;
         this.name = name;
+        this.students = new ArrayList<>();
+    }
+
+    public Class(String classId, String teacherId, String name, String teacherName) {
+        this.classId = classId;
+        this.teacherId = teacherId;
+        this.name = name;
+        this.teacherName = teacherName;
+        this.students = new ArrayList<>();
     }
 
 
@@ -51,6 +61,14 @@ public class Class {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
     }
 
     public ArrayList<User> getStudents() {
